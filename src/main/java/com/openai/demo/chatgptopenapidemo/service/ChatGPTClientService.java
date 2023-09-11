@@ -1,0 +1,48 @@
+package com.openai.demo.chatgptopenapidemo.service;
+
+import com.theokanning.openai.completion.chat.ChatCompletionRequest;
+import com.theokanning.openai.completion.chat.ChatMessage;
+import com.theokanning.openai.service.OpenAiService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.util.List;
+
+@Service
+public class ChatGPTClientService {
+
+    @Value("${openai.api.seacret.key}")
+    private String apiKey;
+    @Value("${openai.api.chat.default.model}")
+    private String defaultModel;
+    @Value("${openai.api.chat.default.role}")
+    private String defaultRole;
+    @Value("${openai.api.max-completions}")
+    private int maxCompletions;
+    @Value("${openai.api.temperature}")
+    private double temperature;
+    @Value("${openai.api.max_tokens}")
+    private int maxTokesns;
+    @Value("${openai.api.default.timeout}")
+    private int timeout;
+
+    public OpenAiService getOpenAiService() {
+        return new OpenAiService(apiKey, Duration.ofSeconds(timeout));
+    }
+
+    public String getChatCompletionRequest(final List<ChatMessage> chatMessageRequest) {
+
+        ChatCompletionRequest completionRequest = ChatCompletionRequest
+                .builder()
+                .messages(chatMessageRequest)
+                .model(defaultModel)
+                .maxTokens(maxTokesns)
+                .temperature(temperature)
+                .n(maxCompletions)
+                .build();
+
+        return getOpenAiService().createChatCompletion(completionRequest).getChoices().get(0).getMessage().getContent();
+    }
+
+}
